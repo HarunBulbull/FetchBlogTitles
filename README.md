@@ -1,79 +1,79 @@
 # fetchBlog
 
-Sitemap'lerden URL toplayan, sayfaları tarayıp H1–H6 başlıklarını filtreleyen ve bunları MySQL veritabanına kaydeden Python betiği.
+A Python script that collects URLs from sitemaps, crawls pages, extracts and filters H1–H6 headings, and stores them in a MySQL database.
 
-## Ne Yapar?
+## What It Does
 
-- **Sitemap okuma:** Yapılandırılmış sitemap URL'lerinden tüm sayfa linklerini çeker.
-- **Sayfa tarama:** Her URL'yi ziyaret eder, HTML'i parse eder.
-- **Başlık çıkarma:** Sadece `h1`–`h6` etiketlerindeki metinleri alır.
-- **Filtreleme:** Başlıklar anahtar kelimelere göre seçilir; domain içeren veya yasaklı kelime içeren satırlar atlanır.
-- **Veritabanı:** Benzersiz `(title, url)` çiftleri MySQL'deki `headings` tablosuna yazılır.
+- **Sitemap parsing:** Fetches all page URLs from the configured sitemap XML endpoints.
+- **Page crawling:** Visits each URL and parses the HTML.
+- **Heading extraction:** Collects only text from `h1`–`h6` tags.
+- **Filtering:** Keeps headings that match keywords; skips those containing domains or words from an ignore list.
+- **Database:** Writes unique `(title, url)` pairs to the MySQL `headings` table.
 
-## Gereksinimler
+## Requirements
 
 - Python 3.7+
-- MySQL sunucusu (erişilebilir olmalı)
-- İnternet bağlantısı
+- Accessible MySQL server
+- Internet connection
 
-## Kurulum
+## Installation
 
 ```bash
-# Sanal ortam (isteğe bağlı)
+# Virtual environment (optional)
 python -m venv venv
 venv\Scripts\activate   # Windows
 # source venv/bin/activate  # Linux/macOS
 
-# Bağımlılıkları yükle
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Yapılandırma
+## Configuration
 
-`main.py` içindeki şu bölümü kendi ortamınıza göre düzenleyin:
+Edit the following section in `main.py` for your environment:
 
-| Değişken | Açıklama |
-|----------|----------|
-| `SITEMAP_URLS` | Taranacak sitemap XML URL'leri |
-| `KEYWORDS` | Başlıkta bulunması gereken kelimeler (örn. `"rüya"`, `"ruya"`) |
-| `IGNORE_LIST` | Başlıkta geçerse kayıt atlanacak kelimeler |
-| `DB_CONFIG` | MySQL bağlantı bilgileri: `host`, `user`, `password`, `database` |
+| Variable | Description |
+|----------|-------------|
+| `SITEMAP_URLS` | Sitemap XML URLs to crawl |
+| `KEYWORDS` | Words that must appear in a heading (e.g. `"dream"`, `"rüya"`) |
+| `IGNORE_LIST` | Words that cause a heading to be skipped if present |
+| `DB_CONFIG` | MySQL connection: `host`, `user`, `password`, `database` |
 
-**Güvenlik:** Veritabanı şifresini kod içinde bırakmak yerine ortam değişkeni kullanmanız önerilir.
+**Security:** Prefer using environment variables for the database password instead of hardcoding it.
 
-## Çalıştırma
+## Running
 
 ```bash
 python main.py
 ```
 
-Betik sırayla:
+The script will:
 
-1. Veritabanına bağlanır, gerekirse veritabanı ve `headings` tablosunu oluşturur.
-2. Tüm sitemap'lerden URL'leri toplar.
-3. Her URL için sayfayı çeker, başlıkları filtreler ve yeni kayıtları tabloya yazar.
-4. İşlem bitince bağlantıyı kapatır.
+1. Connect to the database and create the database and `headings` table if needed.
+2. Collect URLs from all sitemaps.
+3. For each URL, fetch the page, filter headings, and insert new rows into the table.
+4. Close the connection when done.
 
-## Veritabanı Tablosu
+## Database Table
 
-`headings` tablosu örnek yapı:
+The `headings` table structure:
 
-| Alan | Tip | Açıklama |
-|------|-----|----------|
-| `id` | INT, AUTO_INCREMENT | Birincil anahtar |
-| `title` | TEXT | Başlık metni (H1–H6) |
-| `url` | VARCHAR(500) | Sayfa URL'si |
-| `timestamp` | TIMESTAMP | Kayıt zamanı |
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INT, AUTO_INCREMENT | Primary key |
+| `title` | TEXT | Heading text (H1–H6) |
+| `url` | VARCHAR(500) | Page URL |
+| `timestamp` | TIMESTAMP | Record creation time |
 
-`title` alanında benzersizlik (255 karakter) zorunludur; aynı başlık tekrar eklenmez.
+Uniqueness is enforced on `title` (first 255 chars); duplicate titles are not inserted.
 
-## Bağımlılıklar (requirements.txt)
+## Dependencies (requirements.txt)
 
-- **requests** — HTTP istekleri
-- **beautifulsoup4** — HTML parse
-- **lxml** — BeautifulSoup için XML/HTML parser
-- **mysql-connector-python** — MySQL bağlantısı
+- **requests** — HTTP requests
+- **beautifulsoup4** — HTML parsing
+- **lxml** — XML/HTML parser for BeautifulSoup
+- **mysql-connector-python** — MySQL connector
 
-## Lisans
+## License
 
-Bu proje kişisel/kullanım amaçlı paylaşılmıştır.
+This project is shared for personal/use-at-your-own-risk purposes.
